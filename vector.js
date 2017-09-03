@@ -9,7 +9,7 @@ class Vector {
 // Get length of a Vector
 function vLength(vector) {  // -> int
     return Math.sqrt(
-        dotProduct(vector, vector)
+        vDotProduct(vector, vector)
     )
 }
 
