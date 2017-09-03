@@ -1,67 +1,29 @@
-// TODO
-// Add new shapes
-// Investigate stretching with shapes towards edge of image
-
-const WIDTH = 256 * 2;
-const HEIGHT = 192 * 2;
-
-const image = new Image(WIDTH, HEIGHT);
-document.image = image;
-
-// Init image plane
-const imgPlane = new ImgPlane(
-  new Vector(-1, 0.75, 0),
-  new Vector(1, 0.75, 0),
-  new Vector(-1, -0.75, 0),
-  new Vector(1, -0.75, 0)
-)
-
-// Init camera
-const cam = new Vector(0, 0, 1);
-
-// Add some colors
-const red = new Color(1, 0, 0);
-const blue = new Color(0, 0, 1);
-const green = new Color(0, 1, 0);
-
-// Add spheres
-const spheres = [
-  new Sphere(
-    new Vector(4.2, 0, -4),
-    1,
-    red
-  ),
-  new Sphere(
-    new Vector(-3.5, 0, -4),
-    1,
-    blue
-  ),
-  new Sphere(
-    new Vector(0, 1.2, -4),
-    2,
-    green
-  ),
-];
-
-// RAYTRACE
-function rayFromXY(x, y) {
-  const alpha = x / WIDTH;
-  const beta = y / HEIGHT;
+// Cast a ray from a camera to a point on an image
+// plane, given an image height/width and x,y coords
+// within it, (0, 0) being at the top left
+function rayFromXY(imgPlane, camera, x, y, w, h) {  // -> Ray
+  const alpha = x / w;
+  const beta = y / h;
 
   // BLERP
   const top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha)
   const bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha)
   const p = vLerp(top, bot, beta);
 
-  const rayDirection = vSub(p, cam);
+  const rayDirection = vSub(p, camera);
 
   return new Ray(p, rayDirection);
 }
 
-// RAY-SPHERE INTERSECTIONS
-// Ray, Sphere -> dbl
-// Returns 0 if no intersection
-function interRaySphere(ray, sphere) {
+
+// Find smallest scalar t that such that td
+// intersects with the given Sphere, where d
+// is the vector that represents the direction
+// of the given Ray.
+// Returns -1 if no intersection.
+// 0 is valid, as that means that the intersection point
+// lies directly on the image plane
+function intersectRaySphere(ray, sphere) {  // (Ray, Sphere) -> int
   // at**2 + bt + c = 0
 
   // a, (len(d)**2), squared length of ray's direction
@@ -90,7 +52,12 @@ function interRaySphere(ray, sphere) {
   const tPlus = (-b + Math.sqrt(discriminant)) / (2 * a);
   const tMinus = (-b - Math.sqrt(discriminant)) / (2 * a);
 
-  // One t may be negative while other is positive
+  if (tPlus < 0 && tMinus < 0) {
+    // Both intersections are before image plane
+    return -1;
+  }
+
+  // At least one t is positive
   // We want to return the smallest positive one, as
   // that represents the visible intersection, of which
   // there may be 0, 1, or 2 with spheres
@@ -100,31 +67,3 @@ function interRaySphere(ray, sphere) {
   );
 }
 
-// Render
-for (let y = 0; y < HEIGHT; y++) {
-  for (let x = 0; x < WIDTH; x++) {
-    let ray = rayFromXY(x, y);
-
-    let color = new Color(0, 0, 0);  // Default to black
-
-    const t = spheres.reduce((accumT, sphere) => {
-      const newT = interRaySphere(ray, sphere);
-
-      // Intersection!
-      if (newT >= 0 && newT < accumT) {
-        color = sphere.color;
-        return newT;
-      }
-
-      return accumT;
-    }, Infinity);
-
-    image.putPixel(x, y, {
-      r: color.r * 255,
-      g: color.g * 255,
-      b: color.b * 255
-    });
-  }
-}
-
-image.renderInto(document.querySelector('body'));
