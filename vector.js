@@ -4,49 +4,51 @@ class Vector {
         this.y = y;
         this.z = z;
     }
+}
 
-    // TODO this is duplicated on Ray
-    length() {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-    }
+// Get length of a Vector
+function vLength(vector) {  // -> int
+    return Math.sqrt(
+        dotProduct(vector, vector)
+    )
+}
 
-    add(vec) {
-        return new Vector(
-            this.x + vec.x,
-            this.y + vec.y,
-            this.z + vec.z
-        );
-    }
+// Add two Vectors
+function vAdd(vector1, vector2) {  // -> Vector
+    return new Vector(
+        vector1.x + vector2.x,
+        vector1.y + vector2.y,
+        vector1.z + vector2.z
+    );
+}
 
-    sub(vec) {
-        return new Vector(
-            this.x - vec.x,
-            this.y - vec.y,
-            this.z - vec.z
-        );
-    }
+// Subtract two Vectors
+function vSub(vector1, vector2) {  // -> Vector
+    return new Vector(
+        vector1.x - vector2.x,
+        vector1.y - vector2.y,
+        vector1.z - vector2.z
+    );
+}
 
-    scale(scalar) {
-        return new Vector(
-            scalar * this.x,
-            scalar * this.y,
-            scalar * this.z
-        );
-    }
+// Scale a Vector by a scalar
+function vScale(vector, scalar) {  // -> Vector
+    return new Vector(
+        scalar * vector.x,
+        scalar * vector.y,
+        scalar * vector.z
+    );
+}
 
-    // p E [0, 1]
-    // p is ratio of vector between this and vec,
-    // starting from this
-    lerp(p, vec) {
-        return this.scale(1 - p).add(vec.scale(p));
-    }
+// Linearly interpret two vectors given a percentage
+// p E [0, 1] that indicates how far you are from vector1
+function vLerp(vector1, vector2, p) {  // -> Vector
+    return vAdd(vScale(vector1, 1 - p), vScale(vector2, p));
+}
 
-    dotProduct(vec) {
-        return this.x * vec.x +
-            this.y * vec.y +
-            this.z * vec.z;
-    }
+// Get the dot product of two vectors
+function vDotProduct(vector1, vector2) {  // -> int
+    return vector1.x * vector2.x +
+           vector1.y * vector2.y +
+           vector1.z * vector2.z;
 }

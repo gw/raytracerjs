@@ -2,8 +2,8 @@
 // Add new shapes
 // Investigate stretching with shapes towards edge of image
 
-const WIDTH = 256 * 0.5;
-const HEIGHT = 192 * 0.5;
+const WIDTH = 256 * 2;
+const HEIGHT = 192 * 2;
 
 const image = new Image(WIDTH, HEIGHT);
 document.image = image;
@@ -49,11 +49,11 @@ function rayFromXY(x, y) {
   const beta = y / HEIGHT;
 
   // BLERP
-  const top = imgPlane.topLeft.lerp(alpha, imgPlane.topRight);
-  const bot = imgPlane.bottomLeft.lerp(alpha, imgPlane.bottomRight);
-  const p = top.lerp(beta, bot);
+  const top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha)
+  const bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha)
+  const p = vLerp(top, bot, beta);
 
-  const rayDirection = p.sub(cam);
+  const rayDirection = vSub(p, cam);
 
   return new Ray(p, rayDirection);
 }
@@ -65,22 +65,22 @@ function interRaySphere(ray, sphere) {
   // at**2 + bt + c = 0
 
   // a, (len(d)**2), squared length of ray's direction
-  const a = Math.pow(ray.direction.length(), 2);
+  const a = vDotProduct(ray.direction, ray.direction);
 
   // b, 2<c', d>, 2 times dot product of vector from ray
   // origin to sphere center and ray direction
-  const cPrime = ray.origin.sub(sphere.center);
-  const b = 2 * cPrime.dotProduct(ray.direction);
+  const cPrime = vSub(ray.origin, sphere.center);
+  const b = 2 * vDotProduct(cPrime, ray.direction);
 
   // c, len(c')**2 - r**2, squared length of vector from
   // ray origin to sphere center - radius squared
-  const c = Math.pow(cPrime.length(), 2) - Math.pow(sphere.radius, 2);
+  const c = vDotProduct(cPrime, cPrime) - Math.pow(sphere.radius, 2);
 
   // Discriminant, b**2 - 4ac
   const discriminant = Math.pow(b, 2) - (4*a*c);
 
-  // t can't be real number
   if (discriminant < 0) {
+    // t can't be real number
     return -1;
   }
 
@@ -91,6 +91,9 @@ function interRaySphere(ray, sphere) {
   const tMinus = (-b - Math.sqrt(discriminant)) / (2 * a);
 
   // One t may be negative while other is positive
+  // We want to return the smallest positive one, as
+  // that represents the visible intersection, of which
+  // there may be 0, 1, or 2 with spheres
   return Math.min(
     Math.max(tPlus, 0),
     Math.max(tMinus, 0)
