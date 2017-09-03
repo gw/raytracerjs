@@ -1,6 +1,6 @@
-// Cast a ray from a camera to a point on an image
-// plane, given an image height/width and x,y coords
-// within it, (0, 0) being at the top left
+// Cast a ray from a camera to a point on an image plane,
+// given an image height/width and x,y coords in the image,
+// with (0, 0) being at the top left of the image
 function rayFromXY(imgPlane, camera, x, y, w, h) {  // -> Ray
   const alpha = x / w;
   const beta = y / h;
@@ -15,14 +15,14 @@ function rayFromXY(imgPlane, camera, x, y, w, h) {  // -> Ray
   return new Ray(p, rayDirection);
 }
 
-
-// Find smallest scalar t that such that td
-// intersects with the given Sphere, where d
-// is the vector that represents the direction
-// of the given Ray.
+// Find smallest scalar t such that o + td
+// intersects with the given Sphere, where o
+// and d are the Vectors that represent the origin
+// and direction of the Ray, respectively.
 // Returns -1 if no intersection.
 // 0 is valid, as that means that the intersection point
-// lies directly on the image plane
+// lies directly on the image plane (b/c the origin of the Ray
+// is p, see above)
 function intersectRaySphere(ray, sphere) {  // (Ray, Sphere) -> int
   // at**2 + bt + c = 0
 
@@ -60,7 +60,9 @@ function intersectRaySphere(ray, sphere) {  // (Ray, Sphere) -> int
   // At least one t is positive
   // We want to return the smallest positive one, as
   // that represents the visible intersection, of which
-  // there may be 0, 1, or 2 with spheres
+  // there may be 0, 1, or 2 with spheres, which mean
+  // no intersection, 1 intersection (tangent), and 2
+  // intersections, respectively
   return Math.min(
     Math.max(tPlus, 0),
     Math.max(tMinus, 0)

@@ -47,15 +47,19 @@ const spheres = [
 // Render
 for (let y = 0; y < HEIGHT; y++) {
   for (let x = 0; x < WIDTH; x++) {
+    // Cast ray from the camera to the point on the
+    // image plane corresponding to the current pixel
     let ray = rayFromXY(imgPlane, camera, x, y, WIDTH, HEIGHT);
 
-    let color = new Color(0, 0, 0);  // Default to black
+    // If no intersection, color pixel black
+    let color = new Color(0, 0, 0);
 
     const t = spheres.reduce((accumT, sphere) => {
+      // Get closest intersection of the cast ray with a sphere
       const newT = intersectRaySphere(ray, sphere);
 
-      // Intersection!
       if (newT >= 0 && newT < accumT) {
+        // New smallest valid intersection
         color = sphere.color;
         return newT;
       }
