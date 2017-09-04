@@ -1,18 +1,40 @@
 // Cast a ray from a camera to a point on an image plane,
 // given an image height/width and x,y coords in the image,
 // with (0, 0) being at the top left of the image
-function rayFromXY(imgPlane, camera, x, y, w, h) {  // -> Ray
+function rayFromXY(imgPlane, camera, x, y, w, h) {  // -> [Ray]
   const alpha = x / w;
   const beta = y / h;
+  const dAlpha = 1 / w;
+  const dBeta = 1 / h;
 
-  // BLERP
-  const top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha)
-  const bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha)
-  const p = vLerp(top, bot, beta);
+  rays = [];
 
-  const rayDirection = vSub(p, camera);
+  // BLERP x 4
+  let top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha)
+  let bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha)
+  let p = vLerp(top, bot, beta);
+  let rayDirection = vSub(p, camera);
+  rays.push(new Ray(p, rayDirection));
 
-  return new Ray(p, rayDirection);
+  top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha)
+  bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha)
+  p = vLerp(top, bot, beta + dBeta / 2);
+  rayDirection = vSub(p, camera);
+  rays.push(new Ray(p, rayDirection));
+
+  top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha + dAlpha / 2)
+  bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha + dAlpha / 2)
+  p = vLerp(top, bot, beta);
+  rayDirection = vSub(p, camera);
+  rays.push(new Ray(p, rayDirection));
+
+  top = vLerp(imgPlane.topLeft, imgPlane.topRight, alpha + dAlpha / 2)
+  bot = vLerp(imgPlane.bottomLeft, imgPlane.bottomRight, alpha + dAlpha / 2)
+  p = vLerp(top, bot, beta + dBeta / 2);
+  rayDirection = vSub(p, camera);
+  rays.push(new Ray(p, rayDirection));
+
+  return rays;
 }
 
 // Find smallest scalar t such that o + td
