@@ -13,36 +13,22 @@ class Phong {
   }
 
   diffuseTerm() {  // -> Color
-    const l = vSub(this._light.location, this.intersect);
-    const lUnit = vScale(l, 1 / vLength(l));
-
-    // Interpret angle b/w light vector and normal, and use it
-    // to calculate the diffuse component
-    const dotNormalLight = vDotProduct(lUnit, this.normal);
-
-    if (dotNormalLight < 0) {
+    if (this.dotNormalLight < 0) {
       return new Color(0, 0, 0);
     }
 
     return cScaleS(
       cScale(this.obj.material.diffuse, this.light.diffuse),
-      dotNormalLight
+      this.dotNormalLight
     );
   }
 
   specularTerm() {  // -> Color
-    const l = vSub(this.light.location, this.intersect);
-    const lUnit = vScale(l, 1 / vLength(l));
-
-    // Interpret angle b/w light vector and normal, and use it
-    // to calculate the diffuse component
-    const dotNormalLight = vDotProduct(lUnit, this.normal);
-
-    if (dotNormalLight < 0) {
+    if (this.dotNormalLight < 0) {
       return new Color(0, 0, 0);
     }
 
-    const reflectance = vSub(vScale(this.normal, 2 * dotNormalLight), lUnit);
+    const reflectance = vSub(vScale(this.normal, 2 * this.dotNormalLight), this.lUnit);
 
     // View unit
     const view = vSub(this.scene.camera, this.intersect);
@@ -71,6 +57,17 @@ class Phong {
     }
 
     return false;
+  }
+
+  // Dot product of surface normal with normalized light vector
+  get dotNormalLight() {  // -> dbl
+    return vDotProduct(this.lUnit, this.normal);
+  }
+
+  // Normalized light vector
+  get lUnit() {  // Vector
+    const l = vSub(this.light.location, this.intersect);
+    return vScale(l, 1 / vLength(l));
   }
 
   set light(light) {
