@@ -11,8 +11,8 @@
 
 
 // The in-browser canvas
-const WIDTH = 256 * 2;
-const HEIGHT = 192 * 2;
+const WIDTH = 256 * 6;
+const HEIGHT = 192 * 6;
 const image = new Image(WIDTH, HEIGHT);
 document.image = image;
 
@@ -27,75 +27,92 @@ const SCENE = {
     bottomRight: new Vector(1, -0.75, 1),
   },
   camera: new Vector(0, 0, 2),  // The origin of rays
-  iA: new Color(0.3, 0.3, 0.3),  // Ambient intensity
+  iA: new Color(0.6, 0.6, 0.6),  // Ambient intensity
   objects: [
+    // Small yellow
     new Sphere(
-      new Vector(2.7, 2, -1),
-      1,
+      new Vector(-0.9, 0.2, 0.4),
+      0.1,
       new Material(
-        new Color(0.2, 0.8, 0.3),  // Ambient
-        new Color(0.3, 0.3, 0.3),  // Diffuse
-        new Color(0.2, 0.9, 0.9),  // Specular
-        new Color(0.6, 0.6, 0.6),  // Reflectiveness
+        new Color(0.2, 0.1, 0.1),  // Ambient
+        new Color(0.9, 0.9, 0.2),  // Diffuse
+        new Color(0.7, 0.7, 0.7),  // Specular
+        new Color(0.1, 0.1, 0.2),  // Reflectiveness
+        20                         // Shininess
+      )
+    ),
+    // Medium blue
+    new Sphere(
+      new Vector(-0.5, -0.7, 0.4),
+      0.2,
+      new Material(
+        new Color(0.1, 0.1, 0.2),  // Ambient
+        new Color(0.3, 0.1, 0.6),  // Diffuse
+        new Color(0.7, 0.7, 0.7),  // Specular
+        new Color(0.3, 0.3, 0.7),  // Reflectiveness
         50                         // Shininess
       )
     ),
+    // Small blue
     new Sphere(
-      new Vector(-3.8, 0, -11),
+      new Vector(-0.1, -0.2, 0.2),
+      0.05,
+      new Material(
+        new Color(0.1, 0.1, 0.1),  // Ambient
+        new Color(0.5, 0.5, 0.9),  // Diffuse
+        new Color(0.7, 0.7, 0.7),  // Specular
+        new Color(0.1, 0.1, 0.2),  // Reflectiveness
+        20                         // Shininess
+      )
+    ),
+    // Red
+    new Sphere(
+      new Vector(-0.6, 0.4, -0.5),
+      0.8,
+      new Material(
+        new Color(0.1, 0.1, 0.1),  // Ambient
+        new Color(0.7, 0.4, 0.4),  // Diffuse
+        new Color(0.7, 0.7, 0.7),  // Specular
+        new Color(0.9, 0.7, 0.7),  // Reflectiveness
+        200                         // Shininess
+      )
+    ),
+    // Green
+    new Sphere(
+      new Vector(1.1, -0.6, -0.5),
+      0.6,
+      new Material(
+        new Color(0.1, 0.2, 0.1),  // Ambient
+        new Color(0.1, 0.4, 0.1),  // Diffuse
+        new Color(0.9, 0.9, 0.9),  // Specular
+        new Color(0.8, 0.9, 0.8),  // Reflectiveness
+        200                         // Shininess
+      )
+    ),
+    // Big blue
+    new Sphere(
+      new Vector(1.6, 1.2, -3.5),
       1,
       new Material(
-        new Color(0.2, 0.8, 0.3),
-        new Color(0.3, 0.3, 0.3),
-        new Color(0.2, 0.9, 0.3),
-        new Color(0.6, 0.6, 0.6),
-        500
-      )
-    ),
-    new Sphere(
-      new Vector(0, 1.2, -10),
-      2.5,
-      new Material(
-        new Color(0.9, 0.1, 0.3),
-        new Color(0.3, 0.3, 0.3),
-        new Color(0.8, 0.1, 0.3),
-        new Color(0.6, 0.6, 0.6),
-        20
-      )
-    ),
-    new Sphere(
-      new Vector(-6, -3, -10),
-      2.5,
-      new Material(
-        new Color(0.3, 0.3, 0.9),
-        new Color(0.3, 0.3, 0.3),
-        new Color(0.3, 0.1, 0.9),
-        new Color(0.3, 0.6, 0.9),
-        200
-      )
-    ),
-    new Sphere(
-      new Vector(10, 8, -80),
-      30,
-      new Material(
-        new Color(1, 0.7, 0),
-        new Color(0.8, 0.5, 0),
-        new Color(1, 0.7, 0),
-        new Color(1, 0.7, 0),
-        200
+        new Color(0.1, 0.2, 0.6),  // Ambient
+        new Color(0.1, 0.2, 0.6),  // Diffuse
+        new Color(0.9, 0.9, 0.9),  // Specular
+        new Color(0.8, 0.9, 0.8),  // Reflectiveness
+        200                         // Shininess
       )
     ),
   ],
   lights: [
     new Light(
-      new Vector(5, 2, 5),
-      new Color(0.5, 0.5, 0.5),
-      new Color(0.5, 0.5, 0.5)
+      new Vector(-3, -0.5, 1),
+      new Color(0.8, 0.3, 0.3),
+      new Color(0.8, 0.8, 0.8)
     ),
     new Light(
-      new Vector(0, -10, 5),
-      new Color(0.5, 0.5, 0.5),
-      new Color(0.5, 0.5, 0.5)
-    )
+      new Vector(3, 2, 1),
+      new Color(0.6, 0.2, 0.7),
+      new Color(0.8, 0.8, 0.8)
+    ),
   ]
 }
 
