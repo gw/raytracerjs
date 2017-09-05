@@ -5,7 +5,7 @@ class Phong {
     this.obj = obj;
     this.intersect = intersect;
 
-    this.normal = obj.getSurfaceNormal(intersect);
+    this._normal = obj.getSurfaceNormal(intersect);
   }
 
   ambientTerm() {  // -> Color
@@ -28,7 +28,7 @@ class Phong {
       return new Color(0, 0, 0);
     }
 
-    const reflectance = vSub(vScale(this.normal, 2 * this.dotNormalLight), this.lUnit);
+    const reflectance = vSub(vScale(this._normal, 2 * this.dotNormalLight), this.lUnit);
 
     // View unit
     const view = vSub(this.scene.camera, this.intersect);
@@ -61,7 +61,7 @@ class Phong {
 
   // Dot product of surface normal with normalized light vector
   get dotNormalLight() {  // -> dbl
-    return vDotProduct(this.lUnit, this.normal);
+    return vDotProduct(this.lUnit, this._normal);
   }
 
   // Normalized light vector

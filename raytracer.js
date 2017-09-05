@@ -5,6 +5,8 @@ class RayTracer {
     this.height = height;
   }
 
+  // Cast a set of rays from the camera to the image plane
+  // given a set of (x, y) coordinates on the drawing canvas
   castToPlane(x, y) {
     const alpha = x / this.width;
     const beta = y / this.height;
@@ -13,7 +15,7 @@ class RayTracer {
 
     const rays = [];
 
-    // BLERP x 4
+    // BLERP x 4, for supersampling
     let top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha)
     let bot = vLerp(this.scene.imgPlane.bottomLeft, this.scene.imgPlane.bottomRight, alpha)
     let p = vLerp(top, bot, beta);
@@ -22,30 +24,32 @@ class RayTracer {
 
     top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha)
     bot = vLerp(this.scene.imgPlane.bottomLeft, this.scene.imgPlane.bottomRight, alpha)
-    p = vLerp(top, bot, beta + dBeta / 2);
+    p = vLerp(top, bot, beta + dBeta / 2);  // Half beta step
     rayDirection = vSub(p, this.scene.camera);
     rays.push(new Ray(p, rayDirection));
 
-    top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha + dAlpha / 2)
+    top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha + dAlpha / 2)  // Half alpha steps
     bot = vLerp(this.scene.imgPlane.bottomLeft, this.scene.imgPlane.bottomRight, alpha + dAlpha / 2)
     p = vLerp(top, bot, beta);
     rayDirection = vSub(p, this.scene.camera);
     rays.push(new Ray(p, rayDirection));
 
-    top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha + dAlpha / 2)
+    top = vLerp(this.scene.imgPlane.topLeft, this.scene.imgPlane.topRight, alpha + dAlpha / 2)  // Half alpha steps
     bot = vLerp(this.scene.imgPlane.bottomLeft, this.scene.imgPlane.bottomRight, alpha + dAlpha / 2)
-    p = vLerp(top, bot, beta + dBeta / 2);
+    p = vLerp(top, bot, beta + dBeta / 2);  // Half beta step
     rayDirection = vSub(p, this.scene.camera);
     rays.push(new Ray(p, rayDirection));
 
     return rays;
-
   }
 
+  // Calculate the color of a given point on the image plane,
+  // given a ray cast from the camera to the inage plane
   traceRay(ray, numBounces) {  // (Ray, int) -> Color
     let {t, objIndex} = nearestIntersect(this.scene.objects, ray);
 
-    // If no intersection, color pixel black
+    // If no object intersection, color pixel black.
+    // Nothing to see!
     let color = new Color(0, 0, 0);
     if (objIndex === null) return color;
 
@@ -56,15 +60,14 @@ class RayTracer {
       vScale(ray.direction, t)
     );
 
-    const surfaceNormal = obj.getSurfaceNormal(intersectPoint);
-
     const phong = new Phong(this.scene, obj, intersectPoint);
 
-    // Add ambient outside of lights loop b/c
+    // Add ambient term outside of lights loop b/c
     // we don't want to add the ambient term once
     // for each light
     color = cAdd(color, phong.ambientTerm());
 
+    // Phong illumination
     this.scene.lights.forEach(light => {
       phong.light = light;
       if (phong.isInShadow()) return;
@@ -72,19 +75,19 @@ class RayTracer {
       color = cAdd(color, phong.specularTerm());
     });
 
-    // REFLECTIONS
+    // Reflections
     if (numBounces > 0) {
-      // View unit vector
+      // Invert + normalize incoming ray
       const refViewV = vScale(ray.direction, -1);
       const refViewVUnit = vScale(refViewV, 1 / vLength(refViewV));
 
-      // Reflectance unit vector
+      // Reflect incoming ray
+      const surfaceNormal = obj.getSurfaceNormal(intersectPoint);
       const dotRefViewUnitNormal = vDotProduct(refViewVUnit, surfaceNormal);
       const refV = vSub(vScale(surfaceNormal, 2 * dotRefViewUnitNormal), refViewVUnit);
 
-      // Reflectance ray
-      let refRay = new Ray(
-        vAdd(intersectPoint, vScale(refV, 0.0001)),
+      const refRay = new Ray(
+        vAdd(intersectPoint, vScale(refV, 0.0001)),  // Avoid self-reflection
         refV
       );
 

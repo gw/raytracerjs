@@ -40,7 +40,7 @@ function vScale(vector, scalar) {  // -> Vector
     );
 }
 
-// Linearly interpret two vectors given a percentage
+// Linearly interpolate two vectors given a percentage
 // p E [0, 1] that indicates how far you are from vector1
 function vLerp(vector1, vector2, p) {  // -> Vector
     return vAdd(vScale(vector1, 1 - p), vScale(vector2, p));
